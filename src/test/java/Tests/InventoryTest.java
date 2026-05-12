@@ -22,12 +22,12 @@ public class InventoryTest
         driver.get("https://www.saucedemo.com");
         authPage = new AuthPage(driver, 10);
         inventoryPage = new InventoryPage(driver, 10);
-        accessToInventory();
     }
 
     @Test
     public void testFilterLtoH()
     {
+        accessToInventory("standard_user");
         inventoryPage.waitForFilterDropdown();
         inventoryPage.clickDropdown();
         inventoryPage.clickDropdownOption("LtoH");
@@ -41,6 +41,76 @@ public class InventoryTest
         var itemName = inventoryPage.getItemName(firstElement);
         Assert.assertEquals(itemName, "Sauce Labs Onesie");
     }
+    @Test
+    public void testFilterLtoHNegative()
+    {
+        accessToInventory("problem_user");
+        inventoryPage.waitForFilterDropdown();
+        inventoryPage.clickDropdown();
+        inventoryPage.clickDropdownOption("LtoH");
+        inventoryPage.waitForInventory();
+        var firstElement = inventoryPage.getInventoryListElement(0);
+        if (firstElement == null)
+        {
+            System.err.println("[testFilterLtoHNegativeError] ERROR al obtener el primer elemento del inventario");
+            return;
+        }
+        var itemName = inventoryPage.getItemName(firstElement);
+        Assert.assertNotEquals(itemName, "Sauce Labs Onesie"); // invertimos el assert para verificar que el nombre del primer elemento no es "Sauce Labs Onesie"
+    }
+    @Test
+    public void testFilterHtoLPositive()
+    {
+        accessToInventory("standard_user");
+        inventoryPage.waitForFilterDropdown();
+        inventoryPage.clickDropdown();
+        inventoryPage.clickDropdownOption("HtoL");
+        inventoryPage.waitForInventory();
+        var firstElement = inventoryPage.getInventoryListElement(0);
+        if (firstElement == null)
+        {
+            System.err.println("[testFilterHtoLPositiveError] ERROR al obtener el primer elemento del inventario");
+            return;
+        }
+        var itemName = inventoryPage.getItemName(firstElement);
+        Assert.assertEquals(itemName, "Sauce Labs Fleece Jacket");
+    }
+
+    @Test
+    public void testFilterHtoLNegative()
+    {
+        accessToInventory("problem_user");
+        inventoryPage.waitForFilterDropdown();
+        inventoryPage.clickDropdown();
+        inventoryPage.clickDropdownOption("HtoL");
+        inventoryPage.waitForInventory();
+        var firstElement = inventoryPage.getInventoryListElement(0);
+        if (firstElement == null)
+        {
+            System.err.println("[testFilterHtoLNegativeError] ERROR al obtener el primer elemento del inventario");
+            return;
+        }
+        var itemName = inventoryPage.getItemName(firstElement);
+        Assert.assertNotEquals(itemName, "Sauce Labs Fleece Jacket");
+    }
+    @Test
+    public void testFilterLtoHError()
+    {
+        accessToInventory("error_user");
+        inventoryPage.waitForFilterDropdown();
+        inventoryPage.clickDropdown();
+        inventoryPage.clickDropdownOption("LtoH");
+        inventoryPage.waitForAlert();
+        inventoryPage.dismissAlert();
+        var firstElement = inventoryPage.getInventoryListElement(0);
+        if (firstElement == null)
+        {
+            System.err.println("[testFilterLtoHError] ERROR al obtener el primer elemento del inventario");
+            return;
+        }
+        var itemName = inventoryPage.getItemName(firstElement);
+        Assert.assertEquals(itemName, "Sauce Labs Backpack");
+    }
 
     @AfterMethod
     public void tearDown()
@@ -48,9 +118,9 @@ public class InventoryTest
         driver.quit();
     }
 
-    public void accessToInventory()
+    public void accessToInventory(String username)
     {
-        authPage.enterUsername("standard_user");
+        authPage.enterUsername(username);
         authPage.enterPassword("secret_sauce");
         authPage.clickLoginButton();
         authPage.waitForRedirection();

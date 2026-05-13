@@ -44,6 +44,11 @@ public abstract class BasePage
     {
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
+
+    protected void waitForElementInvisibility(By locator)
+    {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
     // Revisa si el WebElement esta visible
     protected boolean isDisplayed(By locator)
     {
